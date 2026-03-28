@@ -5422,7 +5422,19 @@ async function renderAmis() {
       return;
     }
 
-    // 4. Construire le feed
+    // 4. Générer les URLs signées pour toutes les photos
+    const _photoUrls = {};
+    if (supa) {
+      await Promise.all(workouts.map(async row => {
+        try {
+          const { data } = await supa.storage.from('workout-photos')
+            .createSignedUrl(`${row.user_id}/${row.date}.jpg`, 3600);
+          if (data?.signedUrl) _photoUrls[`${row.user_id}_${row.date}`] = data.signedUrl;
+        } catch(_) {}
+      }));
+    }
+
+    // 5. Construire le feed
     feed.innerHTML = workouts.map(row => {
       const w      = row.data.workout;
       const p      = _cachedProfiles[row.user_id] || {};
@@ -5432,10 +5444,7 @@ async function renderAmis() {
       const g1     = w.gradient?.[1] || '#a855f7';
       const dLbl   = _relativeDate(row.date);
       const dur    = (w.duration != null && w.duration !== '') ? `${w.duration} min` : '?';
-      // Toujours générer l'URL Storage — onerror masque si pas de photo
-      const photoUrl = supa
-        ? supa.storage.from('workout-photos').getPublicUrl(`${row.user_id}/${row.date}.jpg`)?.data?.publicUrl
-        : null;
+      const photoUrl = _photoUrls[`${row.user_id}_${row.date}`] || null;
 
       return `<div class="amis-feed-card" onclick="viewFriendProfile('${row.user_id}','${display.replace(/'/g,"\\'")}')">
         <div class="amis-feed-left">
@@ -5550,6 +5559,18 @@ async function viewFriendProfile(friendId, friendName) {
       return;
     }
 
+    // Générer les URLs signées
+    const _friendPhotoUrls = {};
+    if (supa) {
+      await Promise.all(rows.map(async row => {
+        try {
+          const { data } = await supa.storage.from('workout-photos')
+            .createSignedUrl(`${friendId}/${row.date}.jpg`, 3600);
+          if (data?.signedUrl) _friendPhotoUrls[row.date] = data.signedUrl;
+        } catch(_) {}
+      }));
+    }
+
     body.innerHTML = rows.map(row => {
       const w      = row.data.workout;
       const g0     = w.gradient?.[0] || '#6c63ff';
@@ -5557,10 +5578,7 @@ async function viewFriendProfile(friendId, friendName) {
       const dLbl   = _relativeDate(row.date);
       const dur    = (w.duration != null && w.duration !== '') ? `${w.duration} min` : '?';
       const sets   = (w.sets    != null && w.sets    !== '') ? `${w.sets} séries`    : '';
-      // Toujours charger depuis le Storage — le badge 📷 s'affiche via onerror côté img
-      const photoUrl = supa
-        ? supa.storage.from('workout-photos').getPublicUrl(`${friendId}/${row.date}.jpg`)?.data?.publicUrl
-        : null;
+      const photoUrl = _friendPhotoUrls[row.date] || null;
       return `<div class="friend-workout-card">
         <div class="friend-workout-dot" style="background:linear-gradient(135deg,${g0},${g1})">${w.emoji || '🏋️'}</div>
         <div style="flex:1;min-width:0">
@@ -5584,11 +5602,12 @@ async function viewFriendProfile(friendId, friendName) {
 async function showFriendPhoto(dateStr, friendId) {
   if (!supa) return;
   try {
-    const { data } = supa.storage.from('workout-photos').getPublicUrl(`${friendId}/${dateStr}.jpg`);
-    if (!data?.publicUrl) return;
+    const { data } = await supa.storage.from('workout-photos')
+      .createSignedUrl(`${friendId}/${dateStr}.jpg`, 3600);
+    if (!data?.signedUrl) return;
     const overlay = document.getElementById('friend-photo-overlay');
     const img     = document.getElementById('friend-photo-img');
-    if (overlay && img) { img.src = data.publicUrl; overlay.classList.add('show'); }
+    if (overlay && img) { img.src = data.signedUrl; overlay.classList.add('show'); }
   } catch(e) {}
 }
 function closeFriendPhoto() {
