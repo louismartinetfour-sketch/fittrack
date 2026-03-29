@@ -3788,6 +3788,7 @@ let _workoutSource = 'salle';
 // ═══════════════════════════════════════════════════
 //  SUPABASE
 // ═══════════════════════════════════════════════════
+const VAPID_PUBLIC_KEY = 'BElPBDZOr14Ws7bWbZgdSxF2LMc9i4G8VNlU6Mq6X4xtGSJBxfH4QttlALWh-9j1mRVNaSrvpwz273w17uHCMC0';
 const SUPA_URL = 'https://xlictxdhrrdjvopsipsq.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsaWN0eGRocnJkanZvcHNpcHNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MzU2MzEsImV4cCI6MjA5MDIxMTYzMX0.LiSUVpd42AS-7j_AZ-A5nPI1g4b2AWPLMVDdw9raVwA';
 let supa = null;
@@ -4085,6 +4086,8 @@ function _forceHome() {
   renderHome();
   renderStreak();
   checkFirstLaunch();
+  // S'abonner aux notifications push en arrière-plan
+  setTimeout(subscribeToPush, 2000);
 }
 
 function _renderAuth() {
@@ -6331,6 +6334,40 @@ function calNextMonth() {
   calMonth++;
   if (calMonth > 11) { calMonth = 0; calYear++; }
   renderCalendar();
+}
+
+// ═══════════════════════════════════════════════════
+//  NOTIFICATIONS PUSH
+// ═══════════════════════════════════════════════════
+function _urlBase64ToUint8Array(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const base64 = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function subscribeToPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!_supaUser || !supa) return;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+    const j = sub.toJSON();
+    await supa.from('push_subscriptions').upsert({
+      user_id:  _supaUser.id,
+      endpoint: j.endpoint,
+      p256dh:   j.keys.p256dh,
+      auth:     j.keys.auth
+    }, { onConflict: 'user_id' });
+  } catch(e) { console.warn('Push subscription error:', e); }
 }
 
 // ═══════════════════════════════════════════════════

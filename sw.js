@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fittrack-v43';
+const CACHE_NAME = 'fittrack-v44';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',
@@ -23,6 +23,36 @@ self.addEventListener('activate', event => {
     )
   );
   self.clients.claim();
+});
+
+// ── PUSH NOTIFICATIONS ──
+self.addEventListener('push', event => {
+  if (!event.data) return;
+  let data = {};
+  try { data = event.data.json(); } catch(e) { data = { title: 'FitTrack', body: event.data.text() }; }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'FitTrack', {
+      body:    data.body  || '',
+      icon:    '/fittrack/icon.svg',
+      badge:   '/fittrack/icon.svg',
+      data:    { url: data.url || '/fittrack/' },
+      vibrate: [100, 50, 100],
+      tag:     data.tag || 'fittrack-notif',
+      renotify: true
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/fittrack/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const existing = list.find(c => c.url.includes('fittrack'));
+      if (existing) { existing.focus(); existing.navigate(url); }
+      else clients.openWindow(url);
+    })
+  );
 });
 
 self.addEventListener('fetch', event => {
