@@ -30,6 +30,7 @@ button, a, [onclick] { touch-action: manipulation; }
 
     html, body {
       height: 100%;
+      height: 100dvh;
       background: var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -44,6 +45,7 @@ button, a, [onclick] { touch-action: manipulation; }
       position: relative;
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
     }
 
@@ -51,6 +53,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .phone-shell {
       width: 100%;
       height: 100%;
+      height: 100dvh;
     }
 
     /* ── DESKTOP PHONE FRAME ── */
@@ -1228,6 +1231,187 @@ button, a, [onclick] { touch-action: manipulation; }
       transition: background 0.15s;
     }
     .cals-reset-btn:active { background: rgba(239,68,68,0.18); }
+
+    /* ── ALIMENTATION SCREEN ── */
+    #screen-food { background: var(--bg); }
+    .food-header {
+      padding: max(calc(env(safe-area-inset-top) + 16px), 28px) 24px 0;
+      flex-shrink: 0;
+    }
+    .food-header h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .food-tabs {
+      display: flex;
+      gap: 0;
+      padding: 14px 20px 0;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .food-tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      color: var(--sub);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .food-tab-btn.active { color: #a78bfa; border-bottom-color: #a78bfa; }
+    .food-tab-content { display: none; flex: 1; overflow-y: auto; padding: 0 20px max(76px, calc(env(safe-area-inset-bottom) + 66px)); }
+    .food-tab-content.active { display: flex; flex-direction: column; gap: 16px; padding-top: 20px; }
+
+    /* Scanner */
+    .scanner-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    #scanner-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .scanner-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .scanner-frame {
+      width: 65%;
+      aspect-ratio: 1;
+      border: 2.5px solid #a78bfa;
+      border-radius: 16px;
+      box-shadow: 0 0 0 1000px rgba(0,0,0,0.45);
+    }
+    .scanner-hint { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 16px; text-align: center; }
+    .scanner-start-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.12s;
+    }
+    .scanner-start-btn:active { transform: scale(0.97); }
+    .food-result-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .food-result-name { font-size: 18px; font-weight: 800; }
+    .food-result-brand { font-size: 13px; color: var(--sub); }
+    .food-macros {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .food-macro-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .food-macro-val { font-size: 16px; font-weight: 800; }
+    .food-macro-lbl { font-size: 10px; color: var(--sub); font-weight: 600; }
+    .food-portion-row { display: flex; align-items: center; gap: 10px; }
+    .food-portion-input {
+      width: 80px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      padding: 8px 10px;
+      outline: none;
+      text-align: center;
+    }
+    .food-log-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+    .food-log-btn:active { transform: scale(0.97); }
+    .food-log-section { display: flex; flex-direction: column; gap: 8px; }
+    .food-log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--card);
+      border-radius: 14px;
+      font-size: 14px;
+    }
+    .food-log-kcal { color: #f97316; font-weight: 700; }
+    .food-log-del { background: rgba(239,68,68,0.1); border: none; border-radius: 8px; color: var(--red); width: 30px; height: 30px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    .food-day-total {
+      background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(239,68,68,0.1));
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .food-day-kcal { font-size: 32px; font-weight: 900; color: #f97316; letter-spacing: -1px; }
+    .food-day-goal { font-size: 13px; color: var(--sub); }
+    .food-manual-btn {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    /* Reactions in calendar */
+    .cal-reactions-wrap {
+      margin-top: 10px;
+      padding: 12px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .cal-reactions-title { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .cal-reactions-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cal-reaction-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: rgba(167,139,250,0.12);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 20px;
+      font-size: 13px;
+    }
+    .cal-reaction-name { font-size: 12px; color: var(--sub); }
 
     /* ── WATER SCREEN ── */
     #screen-water {
@@ -2523,6 +2707,82 @@ button, a, [onclick] { touch-action: manipulation; }
     </div>
   </div>
 
+  <!-- FOOD / ALIMENTATION -->
+  <div id="screen-food" class="screen">
+    <div class="food-header">
+      <h2>🍽️ Alimentation</h2>
+    </div>
+    <div class="food-tabs">
+      <button class="food-tab-btn active" onclick="switchFoodTab('scanner')">📷 Scanner</button>
+      <button class="food-tab-btn" onclick="switchFoodTab('water')">💧 Eau</button>
+      <button class="food-tab-btn" onclick="switchFoodTab('log')">📋 Journal</button>
+    </div>
+
+    <!-- Tab: Scanner -->
+    <div class="food-tab-content active" id="food-tab-scanner">
+      <div class="scanner-wrap" id="scanner-wrap" style="display:none">
+        <video id="scanner-video" autoplay playsinline muted></video>
+        <div class="scanner-overlay">
+          <div class="scanner-frame"></div>
+          <div class="scanner-hint">Placez le code-barres dans le cadre</div>
+        </div>
+      </div>
+      <button class="scanner-start-btn" id="scanner-start-btn" onclick="startBarcodeScanner()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h3v3H3zm0 6h3v3H3zm0 6h3v3H3zm6-12h3v3H9zm0 6h3v3H9zm0 6h3v3H9zm6-12h3v3h-3zm0 6h3v3h-3zm0 6h3v3h-3zm3-18v18M3 3v18"/></svg>
+        Scanner un aliment
+      </button>
+      <button class="food-manual-btn" onclick="openManualFood()">✏️ Saisie manuelle</button>
+      <div id="food-result-area"></div>
+    </div>
+
+    <!-- Tab: Eau (water content copied here) -->
+    <div class="food-tab-content" id="food-tab-water">
+      <div class="water-glasses-section">
+        <div class="water-glasses-grid" id="food-water-glasses-grid"></div>
+        <div class="water-amount-display" id="food-water-amount-display">0 ml</div>
+        <div class="water-goal-text" id="food-water-goal-text">Objectif : 2000 ml</div>
+        <div class="water-progress-wrap" style="width:100%">
+          <div class="water-progress-fill" id="food-water-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="water-section-title">Ajout rapide</div>
+        <div class="water-quick-grid">
+          <button class="water-quick-btn" onclick="addWater(150)">+150ml<span>Petite gorgée</span></button>
+          <button class="water-quick-btn" onclick="addWater(250)">+250ml<span>1 verre</span></button>
+          <button class="water-quick-btn" onclick="addWater(500)">+500ml<span>Grande bouteille</span></button>
+        </div>
+      </div>
+      <div class="water-custom-row">
+        <input class="water-custom-input" id="food-water-custom-input" type="number" placeholder="Entrez les ml…" min="1"/>
+        <button class="water-add-btn" onclick="addCustomWaterFood()">+</button>
+      </div>
+      <div>
+        <div class="water-section-title">Journal d'aujourd'hui</div>
+        <div id="food-water-log-list"></div>
+      </div>
+      <div>
+        <div class="water-section-title">Objectif journalier</div>
+        <div class="water-goal-row">
+          <span class="water-goal-label">Objectif :</span>
+          <input class="water-goal-input" id="food-water-goal-input" type="number" placeholder="2000" min="1"/>
+          <button class="water-goal-save-btn" onclick="updateWaterGoal()">✓</button>
+        </div>
+      </div>
+      <button class="water-reset-btn" onclick="resetWater()">Réinitialiser l'eau</button>
+    </div>
+
+    <!-- Tab: Journal alimentaire -->
+    <div class="food-tab-content" id="food-tab-log">
+      <div class="food-day-total">
+        <div class="food-day-kcal" id="food-day-kcal">0</div>
+        <div class="food-day-goal" id="food-day-goal-text">kcal aujourd'hui</div>
+      </div>
+      <div class="food-log-section" id="food-log-list"></div>
+      <button class="food-manual-btn" onclick="openManualFood()">+ Ajouter un aliment</button>
+    </div>
+  </div>
+
   <!-- WATER -->
   <div id="screen-water" class="screen">
     <div class="water-header">
@@ -2621,11 +2881,13 @@ button, a, [onclick] { touch-action: manipulation; }
     </svg>
     <span>Amis</span>
   </button>
-  <button class="nav-tab" data-screen="water" onclick="navTo('water')">
+  <button class="nav-tab" data-screen="food" onclick="navTo('food')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+      <path d="M7 2v20"/>
+      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
     </svg>
-    <span>Eau</span>
+    <span>Aliments</span>
   </button>
   <button class="nav-tab" data-screen="calendar" onclick="navTo('calendar')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3960,7 +4222,7 @@ function showScreen(id) {
   // Afficher / masquer la barre de navigation
   document.getElementById('bottom-nav').classList.toggle('hidden', id === 'workout');
 
-  const TABS         = ['home', 'amis', 'water', 'calendar'];
+  const TABS         = ['home', 'amis', 'food', 'calendar'];
   const WORKOUT_FLOW = ['preview', 'workout', 'complete'];
 
   const fromIsTab     = TABS.includes(activeScreen);
@@ -5764,6 +6026,252 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ═══════════════════════════════════════════════════
+//  ALIMENTATION / FOOD
+// ═══════════════════════════════════════════════════
+let _scannerStream = null;
+let _scannerInterval = null;
+let _foodLog = [];
+
+function renderFood() {
+  // Load food log from localStorage
+  try { _foodLog = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) { _foodLog = []; }
+  // Filter today
+  const today = _todayStr();
+  _foodLog = _foodLog.filter(f => f.date === today);
+  renderFoodLog();
+  renderWater();
+}
+
+function switchFoodTab(tab) {
+  document.querySelectorAll('.food-tab-btn').forEach((b, i) => {
+    const tabs = ['scanner','water','log'];
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.food-tab-content').forEach(c => c.classList.remove('active'));
+  const el = document.getElementById('food-tab-' + tab);
+  if (el) el.classList.add('active');
+  if (tab === 'water') renderWater();
+  if (tab === 'log') renderFoodLog();
+}
+
+function renderFoodLog() {
+  const today = _todayStr();
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
+  log = log.filter(f => f.date === today);
+  const total = log.reduce((s, f) => s + (f.kcal || 0), 0);
+  const goalEl = document.getElementById('food-day-goal-text');
+  const kcalEl = document.getElementById('food-day-kcal');
+  if (kcalEl) kcalEl.textContent = total;
+  if (goalEl) goalEl.textContent = 'kcal aujourd\'hui · objectif : 2000 kcal';
+  const listEl = document.getElementById('food-log-list');
+  if (!listEl) return;
+  if (!log.length) { listEl.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">Aucun aliment enregistré aujourd\'hui</div>'; return; }
+  listEl.innerHTML = log.map((f, i) => `
+    <div class="food-log-item">
+      <div>
+        <div style="font-weight:700">${f.name}</div>
+        <div style="font-size:12px;color:var(--sub)">${f.portion}g · P:${f.protein}g G:${f.carbs}g L:${f.fat}g</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="food-log-kcal">${f.kcal} kcal</span>
+        <button class="food-log-del" onclick="deleteFoodLog(${i})">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteFoodLog(index) {
+  const today = _todayStr();
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
+  const todayLog = log.filter(f => f.date === today);
+  todayLog.splice(index, 1);
+  const otherLog = log.filter(f => f.date !== today);
+  localStorage.setItem('ft_food_log', JSON.stringify([...otherLog, ...todayLog]));
+  renderFoodLog();
+}
+
+async function startBarcodeScanner() {
+  const wrap = document.getElementById('scanner-wrap');
+  const btn = document.getElementById('scanner-start-btn');
+  const resultArea = document.getElementById('food-result-area');
+
+  // Try BarcodeDetector API (Chrome Android, Safari 17+)
+  if (!('BarcodeDetector' in window)) {
+    // Fallback: manual barcode entry
+    resultArea.innerHTML = `
+      <div class="food-result-card">
+        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">Scanner non supporté. Entrez le code-barres manuellement :</div>
+        <div style="display:flex;gap:8px">
+          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" type="number">
+          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  try {
+    if (_scannerStream) {
+      stopBarcodeScanner();
+      return;
+    }
+    wrap.style.display = 'block';
+    btn.textContent = '⏹ Arrêter le scanner';
+    _scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+    const video = document.getElementById('scanner-video');
+    video.srcObject = _scannerStream;
+    await video.play();
+
+    const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+    _scannerInterval = setInterval(async () => {
+      try {
+        const barcodes = await detector.detect(video);
+        if (barcodes.length > 0) {
+          const code = barcodes[0].rawValue;
+          stopBarcodeScanner();
+          lookupBarcode(code);
+        }
+      } catch(e) {}
+    }, 400);
+  } catch(e) {
+    resultArea.innerHTML = '<div style="color:var(--sub);font-size:14px;padding:16px;text-align:center">Impossible d\'accéder à la caméra. Vérifiez les permissions.</div>';
+  }
+}
+
+function stopBarcodeScanner() {
+  clearInterval(_scannerInterval);
+  _scannerInterval = null;
+  if (_scannerStream) {
+    _scannerStream.getTracks().forEach(t => t.stop());
+    _scannerStream = null;
+  }
+  const wrap = document.getElementById('scanner-wrap');
+  const btn = document.getElementById('scanner-start-btn');
+  if (wrap) wrap.style.display = 'none';
+  if (btn) btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h3v3H3zm0 6h3v3H3zm0 6h3v3H3zm6-12h3v3H9zm0 6h3v3H9zm0 6h3v3H9zm6-12h3v3h-3zm0 6h3v3h-3zm0 6h3v3h-3zm3-18v18M3 3v18"/></svg> Scanner un aliment`;
+}
+
+async function lookupBarcode(code) {
+  if (!code) return;
+  const resultArea = document.getElementById('food-result-area');
+  resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">🔍 Recherche en cours…</div>';
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,image_url`);
+    const data = await res.json();
+    if (data.status !== 1 || !data.product) {
+      resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">❌ Produit non trouvé. Essayez un autre code-barres.</div>';
+      return;
+    }
+    const p = data.product;
+    const n = p.nutriments || {};
+    const kcal100 = Math.round(n['energy-kcal_100g'] || n['energy_100g'] / 4.184 || 0);
+    const prot100 = Math.round((n['proteins_100g'] || 0) * 10) / 10;
+    const carb100 = Math.round((n['carbohydrates_100g'] || 0) * 10) / 10;
+    const fat100  = Math.round((n['fat_100g'] || 0) * 10) / 10;
+    const name    = p.product_name || 'Produit inconnu';
+    const brand   = p.brands || '';
+    window._scannedProduct = { name, brand, kcal100, prot100, carb100, fat100 };
+    resultArea.innerHTML = `
+      <div class="food-result-card">
+        <div>
+          <div class="food-result-name">${name}</div>
+          ${brand ? `<div class="food-result-brand">${brand}</div>` : ''}
+        </div>
+        <div class="food-macros">
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#f97316">${kcal100}</div><div class="food-macro-lbl">kcal</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#a78bfa">${prot100}g</div><div class="food-macro-lbl">Prot.</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#3b82f6">${carb100}g</div><div class="food-macro-lbl">Gluc.</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#f59e0b">${fat100}g</div><div class="food-macro-lbl">Lip.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--sub)">Valeurs pour 100g</div>
+        <div class="food-portion-row">
+          <label style="font-size:14px;color:var(--sub)">Portion :</label>
+          <input class="food-portion-input" id="food-portion-g" type="number" value="100" min="1" max="2000"> g
+        </div>
+        <button class="food-log-btn" onclick="logScannedFood()">✓ Ajouter au journal</button>
+      </div>`;
+  } catch(e) {
+    resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">❌ Erreur réseau. Vérifiez votre connexion.</div>';
+  }
+}
+
+function logScannedFood() {
+  const p = window._scannedProduct;
+  if (!p) return;
+  const portion = parseFloat(document.getElementById('food-portion-g')?.value) || 100;
+  const ratio = portion / 100;
+  const entry = {
+    date: _todayStr(),
+    name: p.name,
+    portion: Math.round(portion),
+    kcal: Math.round(p.kcal100 * ratio),
+    protein: Math.round(p.prot100 * ratio * 10) / 10,
+    carbs: Math.round(p.carb100 * ratio * 10) / 10,
+    fat: Math.round(p.fat100 * ratio * 10) / 10
+  };
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
+  log.push(entry);
+  localStorage.setItem('ft_food_log', JSON.stringify(log));
+  // Save to calendar history
+  const h = getHistory();
+  if (!h[entry.date]) h[entry.date] = {};
+  if (!h[entry.date].calories) h[entry.date].calories = { total: 0, goal: 2000 };
+  h[entry.date].calories.total = (h[entry.date].calories.total || 0) + entry.kcal;
+  setHistory(h);
+  window._scannedProduct = null;
+  document.getElementById('food-result-area').innerHTML = `<div style="text-align:center;color:var(--green);padding:16px;font-size:15px;font-weight:700">✅ ${entry.name} ajouté !</div>`;
+  setTimeout(() => { switchFoodTab('log'); }, 1200);
+  showToast('Aliment ajouté au journal !');
+}
+
+function openManualFood() {
+  const resultArea = document.getElementById('food-result-area');
+  switchFoodTab('scanner');
+  resultArea.innerHTML = `
+    <div class="food-result-card">
+      <div class="food-result-name">Saisie manuelle</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <input id="mf-name" placeholder="Nom de l'aliment" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;width:100%">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input id="mf-portion" type="number" placeholder="Portion (g)" value="100" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+          <input id="mf-kcal" type="number" placeholder="kcal" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <input id="mf-prot" type="number" placeholder="Protéines g" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+          <input id="mf-carb" type="number" placeholder="Glucides g" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+          <input id="mf-fat" type="number" placeholder="Lipides g" style="background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+        </div>
+        <button class="food-log-btn" onclick="logManualFood()">✓ Ajouter</button>
+      </div>
+    </div>`;
+}
+
+function logManualFood() {
+  const name = document.getElementById('mf-name')?.value?.trim();
+  const portion = parseFloat(document.getElementById('mf-portion')?.value) || 100;
+  const kcal = parseInt(document.getElementById('mf-kcal')?.value) || 0;
+  const protein = parseFloat(document.getElementById('mf-prot')?.value) || 0;
+  const carbs = parseFloat(document.getElementById('mf-carb')?.value) || 0;
+  const fat = parseFloat(document.getElementById('mf-fat')?.value) || 0;
+  if (!name) { showToast('Entrez un nom d\'aliment'); return; }
+  const entry = { date: _todayStr(), name, portion: Math.round(portion), kcal, protein, carbs, fat };
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
+  log.push(entry);
+  localStorage.setItem('ft_food_log', JSON.stringify(log));
+  const h = getHistory();
+  if (!h[entry.date]) h[entry.date] = {};
+  if (!h[entry.date].calories) h[entry.date].calories = { total: 0, goal: 2000 };
+  h[entry.date].calories.total = (h[entry.date].calories.total || 0) + entry.kcal;
+  setHistory(h);
+  document.getElementById('food-result-area').innerHTML = `<div style="text-align:center;color:var(--green);padding:16px;font-size:15px;font-weight:700">✅ ${name} ajouté !</div>`;
+  setTimeout(() => { switchFoodTab('log'); }, 1000);
+  showToast('Aliment ajouté !');
+}
+
 // ─────────────────────────────────────────
 //  NAV
 // ─────────────────────────────────────────
@@ -5775,6 +6283,7 @@ function navTo(screen) {
   currentTab = screen;
   if (screen === 'calories')    renderCalories();
   if (screen === 'water')       renderWater();
+  if (screen === 'food')        renderFood();
   if (screen === 'chrono')      renderChronoLaps();
   if (screen === 'home')        { renderHome(); checkFirstLaunch(); }
   if (screen === 'calendar')    renderCalendar();
@@ -6057,6 +6566,14 @@ function addCustomWater() {
   input.value = '';
 }
 
+function addCustomWaterFood() {
+  const inp = document.getElementById('food-water-custom-input');
+  const val = parseInt(inp?.value);
+  if (!val || val <= 0) return;
+  addWater(val);
+  if (inp) inp.value = '';
+}
+
 function deleteWaterEntry(idx) {
   const data = getWaterData();
   data.entries.splice(idx, 1);
@@ -6136,6 +6653,18 @@ function renderWater() {
 
   const goalInput = document.getElementById('water-goal-input');
   if (goalInput && !goalInput.value) goalInput.placeholder = String(goal);
+
+  // Mirror to food screen water tab
+  const fwg = document.getElementById('food-water-glasses-grid');
+  if (fwg) fwg.innerHTML = (document.getElementById('water-glasses-grid') || {}).innerHTML || '';
+  const fwad = document.getElementById('food-water-amount-display');
+  if (fwad) fwad.textContent = (document.getElementById('water-amount-display') || {}).textContent || '';
+  const fwgt = document.getElementById('food-water-goal-text');
+  if (fwgt) fwgt.textContent = (document.getElementById('water-goal-text') || {}).textContent || '';
+  const fwpf = document.getElementById('food-water-progress-fill');
+  if (fwpf) fwpf.style.width = ((document.getElementById('water-progress-fill') || {}).style || {}).width || '0%';
+  const fwll = document.getElementById('food-water-log-list');
+  if (fwll) fwll.innerHTML = (document.getElementById('water-log-list') || {}).innerHTML || '';
 }
 
 // ─── HISTORY ───
@@ -6312,10 +6841,32 @@ async function showDayDetail(dateStr, updateSelected) {
       + '</div>'
     : '';
 
+  // Fetch reactions for this date (from Supabase) if logged in
+  let reactionsHtml = '';
+  if (supa && _supaUser) {
+    try {
+      const { data: rxs } = await supa
+        .from('reactions')
+        .select('user_id, emoji')
+        .eq('target_user_id', _supaUser.id)
+        .eq('workout_date', dateStr);
+      if (rxs && rxs.length > 0) {
+        // Fetch names of reactors
+        const reactorIds = [...new Set(rxs.map(r => r.user_id))];
+        const { data: profs } = await supa.from('profiles').select('id, name, email').in('id', reactorIds);
+        const profMap = {};
+        (profs || []).forEach(p => { profMap[p.id] = p.name || p.email?.split('@')[0] || 'Ami'; });
+        const chips = rxs.map(r => `<div class="cal-reaction-chip"><span>${r.emoji}</span><span class="cal-reaction-name">${profMap[r.user_id] || 'Ami'}</span></div>`).join('');
+        reactionsHtml = `<div class="cal-reactions-wrap"><div class="cal-reactions-title">💬 Réactions</div><div class="cal-reactions-list">${chips}</div></div>`;
+      }
+    } catch(_) {}
+  }
+
   detail.innerHTML = '<div class="cal-detail-card">'
     + '<div class="cal-detail-date">' + label + '</div>'
     + items
     + photoHtml
+    + reactionsHtml
     + '</div>';
 
   // Scroll detail into view
