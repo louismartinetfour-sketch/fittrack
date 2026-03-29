@@ -6037,7 +6037,7 @@ function renderFood() {
   // Load food log from localStorage
   try { _foodLog = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) { _foodLog = []; }
   // Filter today
-  const today = _todayStr();
+  const today = new Date().toISOString().slice(0,10);
   _foodLog = _foodLog.filter(f => f.date === today);
   renderFoodLog();
   renderWater();
@@ -6056,7 +6056,7 @@ function switchFoodTab(tab) {
 }
 
 function renderFoodLog() {
-  const today = _todayStr();
+  const today = new Date().toISOString().slice(0,10);
   let log = [];
   try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
   log = log.filter(f => f.date === today);
@@ -6083,7 +6083,7 @@ function renderFoodLog() {
 }
 
 function deleteFoodLog(index) {
-  const today = _todayStr();
+  const today = new Date().toISOString().slice(0,10);
   let log = [];
   try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
   const todayLog = log.filter(f => f.date === today);
@@ -6203,7 +6203,7 @@ function logScannedFood() {
   const portion = parseFloat(document.getElementById('food-portion-g')?.value) || 100;
   const ratio = portion / 100;
   const entry = {
-    date: _todayStr(),
+    date: new Date().toISOString().slice(0,10),
     name: p.name,
     portion: Math.round(portion),
     kcal: Math.round(p.kcal100 * ratio),
@@ -6257,7 +6257,7 @@ function logManualFood() {
   const carbs = parseFloat(document.getElementById('mf-carb')?.value) || 0;
   const fat = parseFloat(document.getElementById('mf-fat')?.value) || 0;
   if (!name) { showToast('Entrez un nom d\'aliment'); return; }
-  const entry = { date: _todayStr(), name, portion: Math.round(portion), kcal, protein, carbs, fat };
+  const entry = { date: new Date().toISOString().slice(0,10), name, portion: Math.round(portion), kcal, protein, carbs, fat };
   let log = [];
   try { log = JSON.parse(localStorage.getItem('ft_food_log') || '[]'); } catch(e) {}
   log.push(entry);
