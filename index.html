@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>FitTrack</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://unpkg.com/@zxing/library@0.19.2/umd/index.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button, a, [onclick] { touch-action: manipulation; }
@@ -6206,25 +6206,41 @@ async function processBarcodePhoto(input) {
   const resultArea = document.getElementById('food-result-area');
   resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px;font-size:14px">🔍 Lecture du code-barres…</div>`;
   input.value = '';
+
+  const imgUrl = URL.createObjectURL(file);
+
+  // Essai 1 : ZXing (fonctionne partout, iOS inclus)
+  try {
+    if (typeof ZXing !== 'undefined') {
+      const reader = new ZXing.BrowserMultiFormatReader();
+      const result = await reader.decodeFromImageUrl(imgUrl);
+      URL.revokeObjectURL(imgUrl);
+      if (result?.getText()) { lookupBarcode(result.getText()); return; }
+    }
+  } catch(_) {}
+
+  // Essai 2 : BarcodeDetector natif (Chrome Android)
   try {
     if ('BarcodeDetector' in window) {
       const img = await createImageBitmap(file);
       const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
       const codes = await detector.detect(img);
+      URL.revokeObjectURL(imgUrl);
       if (codes.length > 0) { lookupBarcode(codes[0].rawValue); return; }
     }
-    // Fallback : saisie manuelle du code
-    resultArea.innerHTML = `
-      <div class="food-result-card">
-        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">Code-barres non détecté automatiquement. Entrez-le :</div>
-        <div style="display:flex;gap:8px">
-          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" inputmode="numeric" type="tel">
-          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
-        </div>
-      </div>`;
-  } catch(e) {
-    resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px">❌ Erreur. Essayez la recherche par nom.</div>`;
-  }
+  } catch(_) {}
+
+  URL.revokeObjectURL(imgUrl);
+
+  // Fallback : saisie manuelle
+  resultArea.innerHTML = `
+    <div class="food-result-card">
+      <div style="color:var(--sub);font-size:14px;margin-bottom:10px">Code-barres non lu. Entre-le manuellement :</div>
+      <div style="display:flex;gap:8px">
+        <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" inputmode="numeric" type="tel">
+        <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
+      </div>
+    </div>`;
 }
 
 async function lookupBarcode(code) {
