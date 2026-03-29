@@ -6101,15 +6101,26 @@ async function startBarcodeScanner() {
   try {
     container.style.display = 'block';
     btn.textContent = '⏹ Arrêter le scanner';
-    resultArea.innerHTML = '';
+    resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:12px;font-size:13px">📷 Pointez la caméra sur le code-barres</div>';
 
-    _html5QrCode = new Html5Qrcode('scanner-container');
+    // Activer TOUS les formats de codes-barres (EAN-13, EAN-8, UPC, Code128…)
+    const formats = [
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.QR_CODE,
+    ];
+
+    _html5QrCode = new Html5Qrcode('scanner-container', { formatsToSupport: formats, verbose: false });
     await _html5QrCode.start(
       { facingMode: 'environment' },
       {
-        fps: 10,
-        qrbox: { width: 240, height: 240 },
-        aspectRatio: 1.0
+        fps: 15,
+        qrbox: { width: 280, height: 120 },  // rectangle horizontal = parfait pour EAN-13
+        aspectRatio: 1.333
       },
       (decodedText) => {
         stopBarcodeScanner();
@@ -6121,7 +6132,14 @@ async function startBarcodeScanner() {
     container.style.display = 'none';
     _html5QrCode = null;
     btn.textContent = '📷 Scanner un aliment';
-    resultArea.innerHTML = '<div style="color:var(--sub);font-size:14px;padding:16px;text-align:center">❌ Impossible d\'accéder à la caméra. Vérifiez les permissions.</div>';
+    resultArea.innerHTML = `
+      <div class="food-result-card">
+        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">❌ Caméra inaccessible. Entrez le code-barres manuellement :</div>
+        <div style="display:flex;gap:8px">
+          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" inputmode="numeric">
+          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
+        </div>
+      </div>`;
   }
 }
 
@@ -6139,23 +6157,36 @@ async function stopBarcodeScanner() {
 
 async function lookupBarcode(code) {
   if (!code) return;
+  code = String(code).trim();
   const resultArea = document.getElementById('food-result-area');
-  resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">🔍 Recherche en cours…</div>';
+  resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">🔍 Recherche de <b>${code}</b>…</div>`;
   try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,image_url`);
+    // Essaie d'abord fr.openfoodfacts.org pour les noms en français
+    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
     const data = await res.json();
     if (data.status !== 1 || !data.product) {
-      resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px;font-size:14px">❌ Produit non trouvé. Essayez un autre code-barres.</div>';
+      resultArea.innerHTML = `
+        <div style="text-align:center;color:var(--sub);padding:16px;font-size:14px">
+          ❌ Produit <b>${code}</b> non trouvé dans la base de données.<br>
+          <button onclick="openManualFood()" style="margin-top:12px;padding:10px 18px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:12px;color:#a78bfa;font-weight:700;cursor:pointer">✏️ Saisie manuelle</button>
+        </div>`;
       return;
     }
     const p = data.product;
     const n = p.nutriments || {};
-    const kcal100 = Math.round(n['energy-kcal_100g'] || n['energy_100g'] / 4.184 || 0);
+    // Récupère les calories (plusieurs champs possibles selon les produits)
+    const kcal100 = Math.round(
+      n['energy-kcal_100g'] ||
+      n['energy-kcal'] ||
+      (n['energy_100g'] ? n['energy_100g'] / 4.184 : 0) ||
+      0
+    );
     const prot100 = Math.round((n['proteins_100g'] || 0) * 10) / 10;
     const carb100 = Math.round((n['carbohydrates_100g'] || 0) * 10) / 10;
     const fat100  = Math.round((n['fat_100g'] || 0) * 10) / 10;
-    const name    = p.product_name || 'Produit inconnu';
-    const brand   = p.brands || '';
+    // Nom en français en priorité
+    const name = p.product_name_fr || p.product_name || p.generic_name_fr || p.generic_name || 'Produit inconnu';
+    const brand = p.brands || '';
     window._scannedProduct = { name, brand, kcal100, prot100, carb100, fat100 };
     resultArea.innerHTML = `
       <div class="food-result-card">
