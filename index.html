@@ -6220,7 +6220,7 @@ function logScannedFood() {
   if (!h[entry.date]) h[entry.date] = {};
   if (!h[entry.date].calories) h[entry.date].calories = { total: 0, goal: 2000 };
   h[entry.date].calories.total = (h[entry.date].calories.total || 0) + entry.kcal;
-  setHistory(h);
+  saveHistory(h);
   window._scannedProduct = null;
   document.getElementById('food-result-area').innerHTML = `<div style="text-align:center;color:var(--green);padding:16px;font-size:15px;font-weight:700">✅ ${entry.name} ajouté !</div>`;
   setTimeout(() => { switchFoodTab('log'); }, 1200);
@@ -6266,7 +6266,7 @@ function logManualFood() {
   if (!h[entry.date]) h[entry.date] = {};
   if (!h[entry.date].calories) h[entry.date].calories = { total: 0, goal: 2000 };
   h[entry.date].calories.total = (h[entry.date].calories.total || 0) + entry.kcal;
-  setHistory(h);
+  saveHistory(h);
   document.getElementById('food-result-area').innerHTML = `<div style="text-align:center;color:var(--green);padding:16px;font-size:15px;font-weight:700">✅ ${name} ajouté !</div>`;
   setTimeout(() => { switchFoodTab('log'); }, 1000);
   showToast('Aliment ajouté !');
