@@ -12,6 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>FitTrack</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button, a, [onclick] { touch-action: manipulation; }
@@ -2720,13 +2721,7 @@ button, a, [onclick] { touch-action: manipulation; }
 
     <!-- Tab: Scanner -->
     <div class="food-tab-content active" id="food-tab-scanner">
-      <div class="scanner-wrap" id="scanner-wrap" style="display:none">
-        <video id="scanner-video" autoplay playsinline muted></video>
-        <div class="scanner-overlay">
-          <div class="scanner-frame"></div>
-          <div class="scanner-hint">Placez le code-barres dans le cadre</div>
-        </div>
-      </div>
+      <div id="scanner-container" style="display:none;width:100%;border-radius:20px;overflow:hidden;"></div>
       <button class="scanner-start-btn" id="scanner-start-btn" onclick="startBarcodeScanner()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h3v3H3zm0 6h3v3H3zm0 6h3v3H3zm6-12h3v3H9zm0 6h3v3H9zm0 6h3v3H9zm6-12h3v3h-3zm0 6h3v3h-3zm0 6h3v3h-3zm3-18v18M3 3v18"/></svg>
         Scanner un aliment
@@ -6029,8 +6024,7 @@ if ('serviceWorker' in navigator) {
 // ═══════════════════════════════════════════════════
 //  ALIMENTATION / FOOD
 // ═══════════════════════════════════════════════════
-let _scannerStream = null;
-let _scannerInterval = null;
+let _html5QrCode = null;
 let _foodLog = [];
 
 function renderFood() {
@@ -6094,63 +6088,53 @@ function deleteFoodLog(index) {
 }
 
 async function startBarcodeScanner() {
-  const wrap = document.getElementById('scanner-wrap');
   const btn = document.getElementById('scanner-start-btn');
   const resultArea = document.getElementById('food-result-area');
+  const container = document.getElementById('scanner-container');
 
-  // Try BarcodeDetector API (Chrome Android, Safari 17+)
-  if (!('BarcodeDetector' in window)) {
-    // Fallback: manual barcode entry
-    resultArea.innerHTML = `
-      <div class="food-result-card">
-        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">Scanner non supporté. Entrez le code-barres manuellement :</div>
-        <div style="display:flex;gap:8px">
-          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" type="number">
-          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
-        </div>
-      </div>`;
+  // Si déjà en cours → arrêter
+  if (_html5QrCode) {
+    await stopBarcodeScanner();
     return;
   }
 
   try {
-    if (_scannerStream) {
-      stopBarcodeScanner();
-      return;
-    }
-    wrap.style.display = 'block';
+    container.style.display = 'block';
     btn.textContent = '⏹ Arrêter le scanner';
-    _scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
-    const video = document.getElementById('scanner-video');
-    video.srcObject = _scannerStream;
-    await video.play();
+    resultArea.innerHTML = '';
 
-    const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
-    _scannerInterval = setInterval(async () => {
-      try {
-        const barcodes = await detector.detect(video);
-        if (barcodes.length > 0) {
-          const code = barcodes[0].rawValue;
-          stopBarcodeScanner();
-          lookupBarcode(code);
-        }
-      } catch(e) {}
-    }, 400);
+    _html5QrCode = new Html5Qrcode('scanner-container');
+    await _html5QrCode.start(
+      { facingMode: 'environment' },
+      {
+        fps: 10,
+        qrbox: { width: 240, height: 240 },
+        aspectRatio: 1.0
+      },
+      (decodedText) => {
+        stopBarcodeScanner();
+        lookupBarcode(decodedText);
+      },
+      () => {}
+    );
   } catch(e) {
-    resultArea.innerHTML = '<div style="color:var(--sub);font-size:14px;padding:16px;text-align:center">Impossible d\'accéder à la caméra. Vérifiez les permissions.</div>';
+    container.style.display = 'none';
+    _html5QrCode = null;
+    btn.textContent = '📷 Scanner un aliment';
+    resultArea.innerHTML = '<div style="color:var(--sub);font-size:14px;padding:16px;text-align:center">❌ Impossible d\'accéder à la caméra. Vérifiez les permissions.</div>';
   }
 }
 
-function stopBarcodeScanner() {
-  clearInterval(_scannerInterval);
-  _scannerInterval = null;
-  if (_scannerStream) {
-    _scannerStream.getTracks().forEach(t => t.stop());
-    _scannerStream = null;
+async function stopBarcodeScanner() {
+  if (_html5QrCode) {
+    try { await _html5QrCode.stop(); } catch(e) {}
+    try { _html5QrCode.clear(); } catch(e) {}
+    _html5QrCode = null;
   }
-  const wrap = document.getElementById('scanner-wrap');
+  const container = document.getElementById('scanner-container');
   const btn = document.getElementById('scanner-start-btn');
-  if (wrap) wrap.style.display = 'none';
-  if (btn) btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h3v3H3zm0 6h3v3H3zm0 6h3v3H3zm6-12h3v3H9zm0 6h3v3H9zm0 6h3v3H9zm6-12h3v3h-3zm0 6h3v3h-3zm0 6h3v3h-3zm3-18v18M3 3v18"/></svg> Scanner un aliment`;
+  if (container) { container.style.display = 'none'; container.innerHTML = ''; }
+  if (btn) btn.textContent = '📷 Scanner un aliment';
 }
 
 async function lookupBarcode(code) {
