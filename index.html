@@ -2208,6 +2208,56 @@ button, a, [onclick] { touch-action: manipulation; }
     }
     body.light .theme-toggle { background: #a78bfa; border-color: #a78bfa; }
     body.light .theme-toggle-knob { background: #fff; transform: translateX(20px); }
+
+    /* ── RÉSUMÉ HEBDOMADAIRE ── */
+    .week-summary { background:var(--card);border-radius:16px;padding:14px 16px;margin-top:4px;margin-bottom:12px; }
+    .week-summary-title { font-size:11px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px; }
+    .week-summary-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+    .week-stat { background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 6px;text-align:center; }
+    .week-stat-val { font-size:20px;font-weight:800; }
+    .week-stat-lbl { font-size:11px;color:var(--sub);margin-top:2px; }
+    body.light .week-stat { background:rgba(0,0,0,0.04); }
+
+    /* ── RECORDS PERSONNELS ── */
+    .pr-badge { display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:2px 8px;border-radius:8px;margin-left:6px;vertical-align:middle; }
+
+    /* ── STATS SCREEN ── */
+    .stats-header { padding:max(calc(env(safe-area-inset-top)+16px),28px) 20px 14px;flex-shrink:0;display:flex;align-items:center;gap:12px; }
+    .stats-body { flex:1;overflow-y:auto;padding:16px 16px max(80px,calc(env(safe-area-inset-bottom)+70px)); }
+    .stats-section { font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.08em;margin:16px 0 8px; }
+    .stats-big-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px; }
+    .stats-big-card { background:var(--card);border-radius:14px;padding:16px;text-align:center; }
+    .stats-big-val { font-size:28px;font-weight:900;margin-bottom:2px; }
+    .stats-big-lbl { font-size:11px;color:var(--sub); }
+    .stats-card { background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px; }
+    .stats-card-title { font-size:14px;font-weight:700;margin-bottom:12px; }
+    .pr-list { display:flex;flex-direction:column;gap:8px; }
+    .pr-item { display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:12px; }
+    .pr-item-name { font-size:13px;font-weight:600; }
+    .pr-item-val { font-size:13px;font-weight:800;color:#f59e0b; }
+    .ex-picker { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px; }
+    .ex-pill { padding:6px 12px;border-radius:20px;background:rgba(255,255,255,0.06);border:none;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s; }
+    .ex-pill.active { background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff; }
+    .chart-area { width:100%;overflow-x:auto;padding-bottom:4px; }
+    .chart-svg text { font-family:system-ui,sans-serif; }
+    body.light .stats-big-card { background:var(--card); }
+    body.light .stats-card { background:var(--card); }
+    body.light .pr-item { background:rgba(0,0,0,0.04); }
+    body.light .ex-pill { background:rgba(0,0,0,0.06); }
+
+    /* ── RÉACTIONS AMIS ── */
+    .reaction-row { display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06); }
+    .reaction-btn { display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.1);background:none;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s; }
+    .reaction-btn.active { background:rgba(167,139,250,0.15);border-color:#a78bfa;color:#a78bfa; }
+    .reaction-btn:active { transform:scale(0.92); }
+    .amis-feed-card { display:flex;flex-direction:column; }
+    .amis-feed-card-top { display:flex;align-items:center;gap:12px; }
+    body.light .reaction-row { border-top-color:rgba(0,0,0,0.08); }
+    body.light .reaction-btn { border-color:rgba(0,0,0,0.12); }
+
+    /* ── PARTAGER SÉANCE ── */
+    .btn-share { width:100%;padding:14px;border:2px solid rgba(59,130,246,0.35);border-radius:var(--radius);font-size:15px;font-weight:700;color:#60a5fa;background:rgba(59,130,246,0.08);cursor:pointer;transition:transform 0.15s; }
+    .btn-share:active { transform:scale(0.97); }
   </style>
 </head>
 <body>
@@ -2245,6 +2295,16 @@ button, a, [onclick] { touch-action: manipulation; }
         <div class="accueil-cat-info">
           <div class="accueil-cat-title">Sans matériel</div>
           <div class="accueil-cat-sub">4 séances · Partout</div>
+        </div>
+        <div class="accueil-cat-arrow">›</div>
+      </div>
+      <div id="week-summary" class="week-summary"></div>
+      <div class="accueil-section-title" style="margin-top:4px">Mes performances</div>
+      <div class="accueil-cat-card" onclick="navTo('stats')" style="background:linear-gradient(135deg,#1e40af,#3b82f6)">
+        <div class="accueil-cat-icon">📊</div>
+        <div class="accueil-cat-info">
+          <div class="accueil-cat-title">Mes statistiques</div>
+          <div class="accueil-cat-sub">Records · Progression · Graphiques</div>
         </div>
         <div class="accueil-cat-arrow">›</div>
       </div>
@@ -2530,6 +2590,17 @@ button, a, [onclick] { touch-action: manipulation; }
     </div>
   </div>
 
+  <!-- STATS -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-header">
+      <button style="background:rgba(255,255,255,0.08);border:none;border-radius:12px;color:var(--text);padding:8px 14px;font-size:13px;cursor:pointer;flex-shrink:0" onclick="navTo('home')">← Accueil</button>
+      <h2 style="font-size:20px;font-weight:900;flex:1">📊 Mes Stats</h2>
+    </div>
+    <div class="stats-body" id="stats-body">
+      <div style="color:var(--sub);text-align:center;padding:40px;font-size:14px">Chargement…</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Bottom Nav -->
@@ -2751,6 +2822,17 @@ button, a, [onclick] { touch-action: manipulation; }
         <div>
           <div class="settings-row-label" style="color:#fb923c">Se déconnecter</div>
           <div class="settings-row-sub">Revenir à l'écran de connexion</div>
+        </div>
+      </div>
+      <span class="settings-row-arrow">›</span>
+    </div>
+
+    <div class="settings-row" onclick="exportCSV();closeSettings()">
+      <div class="settings-row-left">
+        <span class="settings-row-icon">📥</span>
+        <div>
+          <div class="settings-row-label">Exporter mes données</div>
+          <div class="settings-row-sub">Télécharger l'historique en CSV</div>
         </div>
       </div>
       <span class="settings-row-arrow">›</span>
@@ -4656,6 +4738,7 @@ function _sessionCardHtml(s, source) {
 
 function renderHome() {
   renderStreak();
+  renderWeekSummary();
   // Dernière séance dans l'accueil
   const hist = getHistory();
   const lastDate = Object.keys(hist).sort().reverse().find(d => hist[d]?.workout);
@@ -4928,6 +5011,14 @@ function renderExercisePhase(body, ex, s) {
 
   const setLabel = `Série ${setIdx + 1} sur ${ex.sets}`;
 
+  // Historique des charges pour cet exercice
+  const _prevPerf = _pfGet()[_pfKey(currentSession.id, ex.name)];
+  const _lastEntry = _prevPerf?.slice(-1)[0];
+  const _lastWeight = _lastEntry?.sets?.[0]?.weight;
+  const _prevHtml = (_lastWeight > 0)
+    ? `<div style="text-align:center;font-size:12px;color:var(--sub);margin-top:6px;opacity:0.8">📌 Dernière fois : <strong style="color:var(--text)">${_wStr(_lastWeight)}</strong> × ${_lastEntry.sets[0].reps} reps${_lastEntry.difficulty ? ' · ' + (_lastEntry.difficulty==='easy'?'😴 Facile':_lastEntry.difficulty==='hard'?'😤 Difficile':'👍 Bien') : ''}</div>`
+    : '';
+
   body.innerHTML = `
     <div style="width:100%; padding-top: 8px;">
       <div style="display:flex;align-items:flex-start;gap:10px;">
@@ -4935,6 +5026,7 @@ function renderExercisePhase(body, ex, s) {
         <button class="ex-info-btn workout-info-btn" onclick="openBodyModalCurrent()">i</button>
       </div>
       <div class="workout-ex-target">${ex.target}</div>
+      ${_prevHtml}
     </div>
     <div class="sets-dots">${dotsHtml}</div>
     ${mainHtml}
@@ -5115,12 +5207,23 @@ function finishWorkout() {
       <div class="stat-label">Jours consécutifs</div>
     </div>`;
 
+  // Check PRs
+  const prNew = _checkAndSavePRs(s, totalSetsCompleted, durationMin);
+  const prHtml = prNew.length > 0
+    ? `<div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1.5px solid rgba(245,158,11,0.4);border-radius:14px;padding:12px 16px;margin-bottom:8px;text-align:center">
+        <div style="font-size:18px;margin-bottom:4px">🏆 Nouveau record !</div>
+        <div style="font-size:13px;color:var(--sub)">${prNew.map(p=>`<strong>${p}</strong>`).join(' · ')}</div>
+       </div>`
+    : '';
+
   // Bouton évaluation + photo dynamiques
   const existingPhoto = _getPhoto(todayStr);
   document.querySelector('.complete-actions').innerHTML = `
+    ${prHtml}
     <button class="btn-photo ${existingPhoto ? 'done' : ''}" id="photo-complete-btn" onclick="openPhotoCapture('${todayStr}')">
       ${existingPhoto ? '📸 Photo prise ✓' : '📸 Prendre une photo souvenir'}
     </button>
+    <button class="btn-share" onclick="shareWorkout('${s.name}',${durationMin},${totalSetsCompleted},'${s.emoji}')">📤 Partager cette séance</button>
     <button class="btn-evaluate" onclick="openQuiz()">📊 Évaluer &amp; adapter mon programme</button>
     <button class="btn-home" onclick="goHome()"
       style="background:linear-gradient(135deg,${s.gradient[0]},${s.gradient[1]})">
@@ -5443,7 +5546,23 @@ async function renderAmis() {
       }));
     }
 
-    // 5. Construire le feed
+    // 5. Charger les réactions
+    const _reactMap = {};
+    if (supa && _supaUser) {
+      try {
+        const dates = workouts.map(r => r.date);
+        const { data: rxData } = await supa.from('reactions')
+          .select('*').in('target_user_id', friendIds).in('workout_date', dates);
+        (rxData || []).forEach(rx => {
+          const k = `${rx.target_user_id}_${rx.workout_date}_${rx.emoji}`;
+          if (!_reactMap[k]) _reactMap[k] = { count: 0, mine: false };
+          _reactMap[k].count++;
+          if (rx.user_id === _supaUser.id) _reactMap[k].mine = true;
+        });
+      } catch(_) {}
+    }
+
+    // 6. Construire le feed
     feed.innerHTML = workouts.map(row => {
       const w      = row.data.workout;
       const p      = _cachedProfiles[row.user_id] || {};
@@ -5455,21 +5574,31 @@ async function renderAmis() {
       const dur    = (w.duration != null && w.duration !== '') ? `${w.duration} min` : '?';
       const photoUrl = _photoUrls[`${row.user_id}_${row.date}`] || null;
 
+      const _rxEmojis = ['👍','🔥','💪'];
+      const _rxBtns = _rxEmojis.map(e => {
+        const k = `${row.user_id}_${row.date}_${e}`;
+        const rx = _reactMap[k] || { count:0, mine:false };
+        return `<button class="reaction-btn${rx.mine?' active':''}" onclick="event.stopPropagation();toggleReaction('${row.user_id}','${row.date}','${e}',this)">${e}${rx.count > 0 ? ' '+rx.count : ''}</button>`;
+      }).join('');
+
       return `<div class="amis-feed-card" onclick="viewFriendProfile('${row.user_id}','${display.replace(/'/g,"\\'")}')">
-        <div class="amis-feed-left">
-          <div class="amis-feed-avatar">${initial}</div>
-          <div class="amis-feed-emoji" style="background:linear-gradient(135deg,${g0},${g1})">${w.emoji || '🏋️'}</div>
+        <div class="amis-feed-card-top">
+          <div class="amis-feed-left">
+            <div class="amis-feed-avatar">${initial}</div>
+            <div class="amis-feed-emoji" style="background:linear-gradient(135deg,${g0},${g1})">${w.emoji || '🏋️'}</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="amis-feed-name">${display}</div>
+            <div class="amis-feed-workout">${w.name || 'Séance'} · ${dur}</div>
+            <div class="amis-feed-date">${dLbl}</div>
+          </div>
+          ${photoUrl
+            ? `<img class="amis-feed-photo" src="${photoUrl}" loading="lazy"
+                 onerror="this.style.display='none'"
+                 onclick="event.stopPropagation();showFriendPhoto('${row.date}','${row.user_id}')">`
+            : ''}
         </div>
-        <div style="flex:1;min-width:0">
-          <div class="amis-feed-name">${display}</div>
-          <div class="amis-feed-workout">${w.name || 'Séance'} · ${dur}</div>
-          <div class="amis-feed-date">${dLbl}</div>
-        </div>
-        ${photoUrl
-          ? `<img class="amis-feed-photo" src="${photoUrl}" loading="lazy"
-               onerror="this.style.display='none'"
-               onclick="event.stopPropagation();showFriendPhoto('${row.date}','${row.user_id}')">`
-          : ''}
+        <div class="reaction-row">${_rxBtns}</div>
       </div>`;
     }).join('');
 
@@ -5649,6 +5778,7 @@ function navTo(screen) {
   if (screen === 'salle')        renderSalle();
   if (screen === 'bodyweight')   renderBodyweight();
   if (screen === 'amis')         renderAmis();
+  if (screen === 'stats')        renderStats();
   if (screen === 'friend-profile') {} // handled by viewFriendProfile
   showScreen(screen);
 }
@@ -6201,6 +6331,258 @@ function calNextMonth() {
   calMonth++;
   if (calMonth > 11) { calMonth = 0; calYear++; }
   renderCalendar();
+}
+
+// ═══════════════════════════════════════════════════
+//  RÉSUMÉ HEBDOMADAIRE
+// ═══════════════════════════════════════════════════
+function renderWeekSummary() {
+  const el = document.getElementById('week-summary');
+  if (!el) return;
+  const hist = getHistory();
+  const today = new Date();
+  const dayOfWeek = (today.getDay() + 6) % 7; // 0=Lun
+  let workouts = 0, totalMin = 0;
+  for (let i = 0; i <= dayOfWeek; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const day = hist[d.toISOString().slice(0, 10)];
+    if (day?.workout) { workouts++; totalMin += day.workout.duration || 0; }
+  }
+  const { count: streak } = getStreak();
+  el.innerHTML = `
+    <div class="week-summary-title">📅 Cette semaine</div>
+    <div class="week-summary-grid">
+      <div class="week-stat"><div class="week-stat-val" style="color:#a78bfa">${workouts}</div><div class="week-stat-lbl">Séances</div></div>
+      <div class="week-stat"><div class="week-stat-val" style="color:#10b981">${totalMin}</div><div class="week-stat-lbl">Minutes</div></div>
+      <div class="week-stat"><div class="week-stat-val" style="color:#f59e0b">${streak}🔥</div><div class="week-stat-lbl">Série</div></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  RECORDS PERSONNELS (PR)
+// ═══════════════════════════════════════════════════
+function _getPRs() { try { return JSON.parse(localStorage.getItem('ft_prs') || '{}'); } catch { return {}; } }
+function _setPRs(d) { localStorage.setItem('ft_prs', JSON.stringify(d)); }
+
+function _checkAndSavePRs(session, totalSets, durationMin) {
+  const prs = _getPRs();
+  const perf = _pfGet();
+  const newPRs = [];
+  session.exercises.forEach(ex => {
+    const key = _pfKey(session.id, ex.name);
+    const history = perf[key] || [];
+    if (!history.length) return;
+    const last = history[history.length - 1];
+    const maxWeight = Math.max(...(last.sets || []).map(s => s.weight || 0));
+    if (maxWeight <= 0) return;
+    const prKey = key;
+    const prev = prs[prKey];
+    if (!prev || maxWeight > prev.weight) {
+      prs[prKey] = { weight: maxWeight, date: new Date().toISOString().slice(0, 10), name: ex.name };
+      newPRs.push(ex.name);
+    }
+  });
+  if (newPRs.length) _setPRs(prs);
+  return newPRs;
+}
+
+// ═══════════════════════════════════════════════════
+//  ÉCRAN STATS
+// ═══════════════════════════════════════════════════
+function renderStats() {
+  const body = document.getElementById('stats-body');
+  if (!body) return;
+  const hist = getHistory();
+  const all = Object.entries(hist).sort(([a],[b]) => a < b ? -1 : 1);
+
+  // Stats globales
+  let totalWorkouts = 0, totalMin = 0, totalSets = 0;
+  all.forEach(([, d]) => {
+    if (d.workout) { totalWorkouts++; totalMin += d.workout.duration || 0; totalSets += d.workout.sets || 0; }
+  });
+  const { count: streak } = getStreak();
+
+  // PRs
+  const prs = _getPRs();
+  const prEntries = Object.values(prs).sort((a,b) => b.weight - a.weight).slice(0, 10);
+
+  // Exercices pour graphique
+  const perf = _pfGet();
+  const exerciseKeys = Object.keys(perf).filter(k => {
+    const hist = perf[k] || [];
+    return hist.some(e => (e.sets||[]).some(s => s.weight > 0));
+  });
+  const selectedEx = exerciseKeys[0] || null;
+
+  body.innerHTML = `
+    <div class="stats-section">Vue d'ensemble</div>
+    <div class="stats-big-grid">
+      <div class="stats-big-card"><div class="stats-big-val" style="color:#a78bfa">${totalWorkouts}</div><div class="stats-big-lbl">Séances totales</div></div>
+      <div class="stats-big-card"><div class="stats-big-val" style="color:#10b981">${totalMin}</div><div class="stats-big-lbl">Minutes totales</div></div>
+      <div class="stats-big-card"><div class="stats-big-val" style="color:#f59e0b">${streak}🔥</div><div class="stats-big-lbl">Série actuelle</div></div>
+      <div class="stats-big-card"><div class="stats-big-val" style="color:#60a5fa">${totalSets}</div><div class="stats-big-lbl">Séries totales</div></div>
+    </div>
+
+    ${prEntries.length ? `
+    <div class="stats-section">🏆 Records personnels</div>
+    <div class="stats-card">
+      <div class="pr-list">
+        ${prEntries.map(p => `
+          <div class="pr-item">
+            <span class="pr-item-name">${p.name}</span>
+            <span class="pr-item-val">🏆 ${_wStr(p.weight)}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${exerciseKeys.length ? `
+    <div class="stats-section">📈 Progression par exercice</div>
+    <div class="stats-card">
+      <div class="ex-picker" id="ex-picker">
+        ${exerciseKeys.slice(0, 8).map((k, i) => {
+          const name = k.split('__')[1] || k;
+          return `<button class="ex-pill${i===0?' active':''}" onclick="renderChart('${k}',this)">${name}</button>`;
+        }).join('')}
+      </div>
+      <div class="chart-area" id="chart-area">
+        ${selectedEx ? _buildChart(selectedEx) : ''}
+      </div>
+    </div>` : '<div style="text-align:center;padding:20px;color:var(--sub);font-size:14px">Complète des séances et utilise l\'évaluation pour voir ta progression 📊</div>'}
+  `;
+}
+
+function renderChart(key, btn) {
+  document.querySelectorAll('.ex-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const area = document.getElementById('chart-area');
+  if (area) area.innerHTML = _buildChart(key);
+}
+
+function _buildChart(key) {
+  const perf = _pfGet();
+  const entries = (perf[key] || []).slice(-10);
+  if (!entries.length) return '<div style="color:var(--sub);font-size:13px;text-align:center;padding:20px">Pas encore de données</div>';
+
+  const points = entries.map(e => ({
+    date: e.date,
+    weight: Math.max(...(e.sets||[]).map(s => s.weight || 0))
+  })).filter(p => p.weight > 0);
+  if (points.length < 2) return '<div style="color:var(--sub);font-size:13px;text-align:center;padding:20px">Pas assez de données (min. 2 séances)</div>';
+
+  const W = 300, H = 120, padL = 38, padR = 12, padT = 20, padB = 28;
+  const weights = points.map(p => p.weight);
+  const minW = Math.min(...weights), maxW = Math.max(...weights);
+  const range = maxW - minW || 1;
+  const xStep = (W - padL - padR) / (points.length - 1);
+
+  const toX = i => padL + i * xStep;
+  const toY = w => padT + (H - padT - padB) * (1 - (w - minW) / range);
+
+  const pathD = points.map((p, i) => `${i===0?'M':'L'}${toX(i).toFixed(1)},${toY(p.weight).toFixed(1)}`).join(' ');
+  const areaD = pathD + ` L${toX(points.length-1).toFixed(1)},${(H-padB)} L${padL},${(H-padB)} Z`;
+  const color = '#a78bfa';
+
+  const dots = points.map((p, i) => `<circle cx="${toX(i).toFixed(1)}" cy="${toY(p.weight).toFixed(1)}" r="4" fill="${color}" stroke="var(--bg)" stroke-width="2"/>`).join('');
+  const labels = points.map((p, i) => {
+    const d = new Date(p.date+'T12:00:00');
+    const lbl = `${d.getDate()}/${d.getMonth()+1}`;
+    return `<text x="${toX(i).toFixed(1)}" y="${H-2}" text-anchor="middle" font-size="9" fill="var(--sub)">${lbl}</text>`;
+  }).join('');
+  const yLabels = [minW, minW + range/2, maxW].map(v => {
+    const y = toY(v);
+    return `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="var(--sub)">${_wStr(v)}</text>`;
+  }).join('');
+
+  // Badge PR sur le dernier point si record
+  const prs = _getPRs();
+  const pr = prs[key];
+  const lastPoint = points[points.length - 1];
+  const prBadge = (pr && lastPoint.weight >= pr.weight)
+    ? `<text x="${toX(points.length-1).toFixed(1)}" y="${toY(lastPoint.weight)-10}" text-anchor="middle" font-size="10" fill="#f59e0b">🏆</text>`
+    : '';
+
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" class="chart-svg" style="min-width:260px">
+    <defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaD}" fill="url(#cg)"/>
+    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${labels}${yLabels}${prBadge}
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  RÉACTIONS AMIS
+// ═══════════════════════════════════════════════════
+async function toggleReaction(targetUserId, workoutDate, emoji, btn) {
+  if (!supa || !_supaUser) { showToast('Connecte-toi pour réagir'); return; }
+  const isActive = btn.classList.contains('active');
+  try {
+    if (isActive) {
+      await supa.from('reactions').delete()
+        .eq('user_id', _supaUser.id).eq('target_user_id', targetUserId)
+        .eq('workout_date', workoutDate).eq('emoji', emoji);
+      btn.classList.remove('active');
+    } else {
+      await supa.from('reactions').upsert({
+        user_id: _supaUser.id, target_user_id: targetUserId,
+        workout_date: workoutDate, emoji
+      }, { onConflict: 'user_id,target_user_id,workout_date,emoji' });
+      btn.classList.add('active');
+    }
+    // Mettre à jour le compteur
+    const k = `${targetUserId}_${workoutDate}_${emoji}`;
+    const { count } = await supa.from('reactions').select('*', { count:'exact', head:true })
+      .eq('target_user_id', targetUserId).eq('workout_date', workoutDate).eq('emoji', emoji);
+    const txt = count > 0 ? `${emoji} ${count}` : emoji;
+    btn.textContent = txt;
+    if (!isActive) btn.classList.add('active');
+  } catch(e) { showToast('Erreur réaction'); }
+}
+
+// ═══════════════════════════════════════════════════
+//  PARTAGER UNE SÉANCE
+// ═══════════════════════════════════════════════════
+function shareWorkout(name, duration, sets, emoji) {
+  const text = `${emoji} ${name} — ${duration} min · ${sets} séries 💪\nTraqué sur FitTrack`;
+  const url = 'https://louismartinetfour-sketch.github.io/fittrack';
+  if (navigator.share) {
+    navigator.share({ title: 'Ma séance FitTrack', text, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(`${text}\n${url}`)
+      .then(() => showToast('Copié dans le presse-papiers ! 📋'))
+      .catch(() => showToast(text));
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  EXPORTER CSV
+// ═══════════════════════════════════════════════════
+function exportCSV() {
+  const hist = getHistory();
+  const rows = [['Date','Séance','Durée (min)','Séries','Exercices','Eau (ml)','Calories (kcal)']];
+  Object.entries(hist).sort(([a],[b]) => a < b ? -1 : 1).forEach(([date, d]) => {
+    rows.push([
+      date,
+      d.workout?.name || '',
+      d.workout?.duration || '',
+      d.workout?.sets || '',
+      d.workout?.exercises || '',
+      d.water?.total || '',
+      d.calories?.total || ''
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fittrack_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('Export téléchargé 📥');
 }
 
 // ─────────────────────────────────────────
