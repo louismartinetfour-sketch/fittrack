@@ -27,6 +27,7 @@ button, a, [onclick] { touch-action: manipulation; }
       --amber: #f59e0b;
       --red: #ef4444;
       --radius: 20px;
+      --nav-h: 96px; /* overridden by JS _syncNavHeight() */
     }
 
     html, body {
@@ -253,7 +254,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .sessions-list {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 16px max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      padding: 8px 16px var(--nav-h);
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
@@ -982,7 +983,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .chrono-laps {
       flex: 1;
       overflow-y: auto;
-      padding: 0 20px max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      padding: 0 20px var(--nav-h);
     }
     .chrono-laps-title {
       font-size: 12px;
@@ -1031,7 +1032,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .cals-body {
       flex: 1;
       overflow-y: auto;
-      padding: 0 20px max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      padding: 0 20px var(--nav-h);
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -1260,7 +1261,7 @@ button, a, [onclick] { touch-action: manipulation; }
       transition: color 0.15s, border-color 0.15s;
     }
     .food-tab-btn.active { color: #a78bfa; border-bottom-color: #a78bfa; }
-    .food-tab-content { display: none; flex: 1; overflow-y: auto; padding: 0 20px max(76px, calc(env(safe-area-inset-bottom) + 66px)); }
+    .food-tab-content { display: none; flex: 1; overflow-y: auto; padding: 0 20px var(--nav-h); }
     .food-tab-content.active { display: flex; flex-direction: column; gap: 16px; padding-top: 20px; }
 
     /* Scanner */
@@ -1430,7 +1431,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .water-body {
       flex: 1;
       overflow-y: auto;
-      padding: 0 20px max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      padding: 0 20px var(--nav-h);
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -1642,7 +1643,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .cal-body {
       flex: 1;
       overflow-y: auto;
-      padding: 0 16px max(76px, calc(env(safe-area-inset-bottom) + 66px));
+      padding: 0 16px var(--nav-h);
     }
     .cal-nav {
       display: flex;
@@ -2435,6 +2436,7 @@ button, a, [onclick] { touch-action: manipulation; }
     .reaction-btn { display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.1);background:none;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s; }
     .reaction-btn.active { background:rgba(167,139,250,0.15);border-color:#a78bfa;color:#a78bfa; }
     .reaction-btn:active { transform:scale(0.92); }
+    .rx-count { display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;background:rgba(167,139,250,0.25);border-radius:8px;padding:0 4px;font-size:11px;font-weight:800;color:#a78bfa;cursor:pointer; }
     .amis-feed-card { display:flex;flex-direction:column; }
     .amis-feed-card-top { display:flex;align-items:center;gap:12px; }
     body.light .reaction-row { border-top-color:rgba(0,0,0,0.08); }
@@ -2719,12 +2721,24 @@ button, a, [onclick] { touch-action: manipulation; }
       <button class="food-tab-btn" onclick="switchFoodTab('log')">📋 Journal</button>
     </div>
 
-    <!-- Tab: Scanner -->
+    <!-- Tab: Recherche -->
     <div class="food-tab-content active" id="food-tab-scanner">
-      <div id="scanner-container" style="display:none;width:100%;border-radius:20px;overflow:hidden;"></div>
-      <button class="scanner-start-btn" id="scanner-start-btn" onclick="startBarcodeScanner()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3h3v3H3zm0 6h3v3H3zm0 6h3v3H3zm6-12h3v3H9zm0 6h3v3H9zm0 6h3v3H9zm6-12h3v3h-3zm0 6h3v3h-3zm0 6h3v3h-3zm3-18v18M3 3v18"/></svg>
-        Scanner un aliment
+      <!-- Recherche par nom -->
+      <div style="display:flex;gap:8px">
+        <input id="food-search-input" type="text" placeholder="🔍 Rechercher un aliment…"
+          style="flex:1;background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:var(--text);font-size:15px;padding:12px 14px;outline:none"
+          oninput="foodSearchDebounce(this.value)"
+          onkeydown="if(event.key==='Enter')searchFood(this.value)">
+        <button onclick="searchFood(document.getElementById('food-search-input').value)"
+          style="padding:12px 14px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:14px;color:#fff;font-weight:700;cursor:pointer;flex-shrink:0">
+          →
+        </button>
+      </div>
+      <!-- Scan code-barres (photo) -->
+      <input type="file" id="barcode-photo-input" accept="image/*" capture="environment" style="display:none" onchange="processBarcodePhoto(this)">
+      <button class="scanner-start-btn" onclick="document.getElementById('barcode-photo-input').click()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zm3 0h4m-4 3v4m-3-1h3m1 0h3"/></svg>
+        Scanner un code-barres
       </button>
       <button class="food-manual-btn" onclick="openManualFood()">✏️ Saisie manuelle</button>
       <div id="food-result-area"></div>
@@ -5813,14 +5827,30 @@ async function renderAmis() {
         const dates = workouts.map(r => r.date);
         const { data: rxData } = await supa.from('reactions')
           .select('*').in('target_user_id', friendIds).in('workout_date', dates);
+
+        // Récupérer les profils des réacteurs inconnus
+        const allReactorIds = [...new Set((rxData || []).map(r => r.user_id))];
+        const unknownIds = allReactorIds.filter(id => !_cachedProfiles[id] && id !== _supaUser.id);
+        if (unknownIds.length) {
+          const { data: rProfs } = await supa.from('profiles').select('id,name,email').in('id', unknownIds);
+          (rProfs || []).forEach(p => { _cachedProfiles[p.id] = p; });
+        }
+        // Ajouter le profil de l'utilisateur courant dans le cache
+        if (!_cachedProfiles[_supaUser.id]) {
+          _cachedProfiles[_supaUser.id] = { id: _supaUser.id, name: 'Toi', email: _supaUser.email };
+        }
+
         (rxData || []).forEach(rx => {
           const k = `${rx.target_user_id}_${rx.workout_date}_${rx.emoji}`;
-          if (!_reactMap[k]) _reactMap[k] = { count: 0, mine: false };
+          if (!_reactMap[k]) _reactMap[k] = { count: 0, mine: false, reactors: [] };
           _reactMap[k].count++;
+          _reactMap[k].reactors.push(rx.user_id);
           if (rx.user_id === _supaUser.id) _reactMap[k].mine = true;
         });
       } catch(_) {}
     }
+    window._reactMap = _reactMap;
+    window._reactProfiles = _cachedProfiles;
 
     // 6. Construire le feed
     feed.innerHTML = workouts.map(row => {
@@ -5837,8 +5867,11 @@ async function renderAmis() {
       const _rxEmojis = ['👍','🔥','💪'];
       const _rxBtns = _rxEmojis.map(e => {
         const k = `${row.user_id}_${row.date}_${e}`;
-        const rx = _reactMap[k] || { count:0, mine:false };
-        return `<button class="reaction-btn${rx.mine?' active':''}" onclick="event.stopPropagation();toggleReaction('${row.user_id}','${row.date}','${e}',this)">${e}${rx.count > 0 ? ' '+rx.count : ''}</button>`;
+        const rx = _reactMap[k] || { count:0, mine:false, reactors:[] };
+        const countHtml = rx.count > 0
+          ? `<span class="rx-count" onclick="event.stopPropagation();showReactors('${row.user_id}','${row.date}','${e}')">${rx.count}</span>`
+          : '';
+        return `<button class="reaction-btn${rx.mine?' active':''}" onclick="event.stopPropagation();toggleReaction('${row.user_id}','${row.date}','${e}',this)">${e}${countHtml}</button>`;
       }).join('');
 
       return `<div class="amis-feed-card" onclick="viewFriendProfile('${row.user_id}','${display.replace(/'/g,"\\'")}')">
@@ -6087,72 +6120,111 @@ function deleteFoodLog(index) {
   renderFoodLog();
 }
 
-async function startBarcodeScanner() {
-  const btn = document.getElementById('scanner-start-btn');
+let _foodSearchTimer = null;
+function foodSearchDebounce(val) {
+  clearTimeout(_foodSearchTimer);
+  if (!val || val.trim().length < 2) return;
+  _foodSearchTimer = setTimeout(() => searchFood(val), 600);
+}
+
+async function searchFood(query) {
+  if (!query || !query.trim()) return;
+  query = query.trim();
   const resultArea = document.getElementById('food-result-area');
-  const container = document.getElementById('scanner-container');
-
-  // Si déjà en cours → arrêter
-  if (_html5QrCode) {
-    await stopBarcodeScanner();
-    return;
-  }
-
+  resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px;font-size:14px">🔍 Recherche de « ${query} »…</div>`;
   try {
-    container.style.display = 'block';
-    btn.textContent = '⏹ Arrêter le scanner';
-    resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:12px;font-size:13px">📷 Pointez la caméra sur le code-barres</div>';
-
-    // Activer TOUS les formats de codes-barres (EAN-13, EAN-8, UPC, Code128…)
-    const formats = [
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.QR_CODE,
-    ];
-
-    _html5QrCode = new Html5Qrcode('scanner-container', { formatsToSupport: formats, verbose: false });
-    await _html5QrCode.start(
-      { facingMode: 'environment' },
-      {
-        fps: 15,
-        qrbox: { width: 280, height: 120 },  // rectangle horizontal = parfait pour EAN-13
-        aspectRatio: 1.333
-      },
-      (decodedText) => {
-        stopBarcodeScanner();
-        lookupBarcode(decodedText);
-      },
-      () => {}
-    );
-  } catch(e) {
-    container.style.display = 'none';
-    _html5QrCode = null;
-    btn.textContent = '📷 Scanner un aliment';
-    resultArea.innerHTML = `
-      <div class="food-result-card">
-        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">❌ Caméra inaccessible. Entrez le code-barres manuellement :</div>
-        <div style="display:flex;gap:8px">
-          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" inputmode="numeric">
-          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
+    const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=6&fields=code,product_name,product_name_fr,brands,nutriments`);
+    const data = await res.json();
+    const products = (data.products || []).filter(p => p.product_name || p.product_name_fr);
+    if (!products.length) {
+      resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px;font-size:14px">❌ Aucun résultat pour « ${query} ».<br><button onclick="openManualFood()" style="margin-top:12px;padding:10px 18px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:12px;color:#a78bfa;font-weight:700;cursor:pointer">✏️ Saisie manuelle</button></div>`;
+      return;
+    }
+    resultArea.innerHTML = products.map((p, i) => {
+      const n = p.nutriments || {};
+      const kcal = Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g'] ? n['energy_100g']/4.184 : 0) || 0);
+      const prot = Math.round((n['proteins_100g']||0)*10)/10;
+      const carb = Math.round((n['carbohydrates_100g']||0)*10)/10;
+      const fat  = Math.round((n['fat_100g']||0)*10)/10;
+      const name = p.product_name_fr || p.product_name || 'Produit';
+      const brand = p.brands || '';
+      return `<div class="food-result-card" style="cursor:pointer" onclick="selectFoodProduct(${i})">
+        <div class="food-result-name">${name}</div>
+        ${brand ? `<div class="food-result-brand">${brand}</div>` : ''}
+        <div class="food-macros" style="margin-top:8px">
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#f97316">${kcal}</div><div class="food-macro-lbl">kcal</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#a78bfa">${prot}g</div><div class="food-macro-lbl">Prot.</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#3b82f6">${carb}g</div><div class="food-macro-lbl">Gluc.</div></div>
+          <div class="food-macro-item"><div class="food-macro-val" style="color:#f59e0b">${fat}g</div><div class="food-macro-lbl">Lip.</div></div>
         </div>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px">pour 100g · Appuyer pour ajouter</div>
       </div>`;
+    }).join('');
+    window._searchResults = products.map(p => {
+      const n = p.nutriments || {};
+      return {
+        name: p.product_name_fr || p.product_name || 'Produit',
+        brand: p.brands || '',
+        kcal100: Math.round(n['energy-kcal_100g'] || n['energy-kcal'] || (n['energy_100g'] ? n['energy_100g']/4.184 : 0) || 0),
+        prot100: Math.round((n['proteins_100g']||0)*10)/10,
+        carb100: Math.round((n['carbohydrates_100g']||0)*10)/10,
+        fat100:  Math.round((n['fat_100g']||0)*10)/10
+      };
+    });
+  } catch(e) {
+    resultArea.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px;font-size:14px">❌ Erreur réseau. Vérifiez votre connexion.</div>';
   }
 }
 
-async function stopBarcodeScanner() {
-  if (_html5QrCode) {
-    try { await _html5QrCode.stop(); } catch(e) {}
-    try { _html5QrCode.clear(); } catch(e) {}
-    _html5QrCode = null;
+function selectFoodProduct(i) {
+  const p = (window._searchResults || [])[i];
+  if (!p) return;
+  window._scannedProduct = p;
+  const resultArea = document.getElementById('food-result-area');
+  resultArea.innerHTML = `
+    <div class="food-result-card">
+      <div class="food-result-name">${p.name}</div>
+      ${p.brand ? `<div class="food-result-brand">${p.brand}</div>` : ''}
+      <div class="food-macros" style="margin-top:8px">
+        <div class="food-macro-item"><div class="food-macro-val" style="color:#f97316">${p.kcal100}</div><div class="food-macro-lbl">kcal</div></div>
+        <div class="food-macro-item"><div class="food-macro-val" style="color:#a78bfa">${p.prot100}g</div><div class="food-macro-lbl">Prot.</div></div>
+        <div class="food-macro-item"><div class="food-macro-val" style="color:#3b82f6">${p.carb100}g</div><div class="food-macro-lbl">Gluc.</div></div>
+        <div class="food-macro-item"><div class="food-macro-val" style="color:#f59e0b">${p.fat100}g</div><div class="food-macro-lbl">Lip.</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">Valeurs pour 100g</div>
+      <div class="food-portion-row">
+        <label style="font-size:14px;color:var(--sub)">Portion :</label>
+        <input class="food-portion-input" id="food-portion-g" type="number" value="100" min="1" max="2000"> g
+      </div>
+      <button class="food-log-btn" onclick="logScannedFood()">✓ Ajouter au journal</button>
+    </div>`;
+}
+
+async function processBarcodePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const resultArea = document.getElementById('food-result-area');
+  resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px;font-size:14px">🔍 Lecture du code-barres…</div>`;
+  input.value = '';
+  try {
+    if ('BarcodeDetector' in window) {
+      const img = await createImageBitmap(file);
+      const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+      const codes = await detector.detect(img);
+      if (codes.length > 0) { lookupBarcode(codes[0].rawValue); return; }
+    }
+    // Fallback : saisie manuelle du code
+    resultArea.innerHTML = `
+      <div class="food-result-card">
+        <div style="color:var(--sub);font-size:14px;margin-bottom:10px">Code-barres non détecté automatiquement. Entrez-le :</div>
+        <div style="display:flex;gap:8px">
+          <input id="barcode-manual-input" style="flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-size:15px;padding:10px 12px;outline:none" placeholder="Ex: 3017620422003" inputmode="numeric" type="tel">
+          <button onclick="lookupBarcode(document.getElementById('barcode-manual-input').value)" style="padding:10px 16px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer">OK</button>
+        </div>
+      </div>`;
+  } catch(e) {
+    resultArea.innerHTML = `<div style="text-align:center;color:var(--sub);padding:20px">❌ Erreur. Essayez la recherche par nom.</div>`;
   }
-  const container = document.getElementById('scanner-container');
-  const btn = document.getElementById('scanner-start-btn');
-  if (container) { container.style.display = 'none'; container.innerHTML = ''; }
-  if (btn) btn.textContent = '📷 Scanner un aliment';
 }
 
 async function lookupBarcode(code) {
@@ -7121,6 +7193,19 @@ function _buildChart(key) {
 // ═══════════════════════════════════════════════════
 //  RÉACTIONS AMIS
 // ═══════════════════════════════════════════════════
+function showReactors(targetUserId, workoutDate, emoji) {
+  const k = `${targetUserId}_${workoutDate}_${emoji}`;
+  const rx = (window._reactMap || {})[k];
+  if (!rx || !rx.reactors?.length) return;
+  const profiles = window._reactProfiles || {};
+  const names = rx.reactors.map(uid => {
+    if (uid === _supaUser?.id) return 'Toi';
+    const p = profiles[uid];
+    return p?.name || p?.email?.split('@')[0] || 'Quelqu\'un';
+  });
+  showToast(`${emoji} ${names.join(', ')}`);
+}
+
 async function toggleReaction(targetUserId, workoutDate, emoji, btn) {
   if (!supa || !_supaUser) { showToast('Connecte-toi pour réagir'); return; }
   const isActive = btn.classList.contains('active');
@@ -7199,6 +7284,16 @@ window.onerror = function(msg, src, line) {
 };
 
 // Forcer l'écran home visible immédiatement
+// ── Calcul dynamique de la hauteur du bottom nav ──
+function _syncNavHeight() {
+  const nav = document.getElementById('bottom-nav');
+  if (!nav) return;
+  const h = nav.offsetHeight;
+  // +20px de marge pour que le dernier élément ne colle pas au nav
+  document.documentElement.style.setProperty('--nav-h', (h + 20) + 'px');
+}
+window.addEventListener('resize', _syncNavHeight);
+
 (function initApp() {
   try {
     applyTheme(); // Appliquer le thème sauvegardé en premier
@@ -7208,6 +7303,8 @@ window.onerror = function(msg, src, line) {
     }
     activeScreen = 'home';
     renderHome();
+    // Calculer la hauteur du nav après rendu
+    setTimeout(_syncNavHeight, 100);
   } catch(e) {
     const el = document.getElementById('js-error-banner');
     if (el) { el.style.display = 'block'; el.textContent = 'Init error: ' + e.message; }
