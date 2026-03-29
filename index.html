@@ -8028,34 +8028,41 @@ function closeChat() {
 async function loadChatMessages() {
   const el = document.getElementById('chat-messages');
   if (!el || !supa || !_supaUser || !_currentChatFriendId) return;
-  try {
-    const { data: msgs } = await supa.from('messages').select('*')
-      .or(`and(sender_id.eq.${_supaUser.id},receiver_id.eq.${_currentChatFriendId}),and(sender_id.eq.${_currentChatFriendId},receiver_id.eq.${_supaUser.id})`)
-      .order('created_at', { ascending: true }).limit(100);
-    el.innerHTML = (msgs||[]).map(m => {
-      const isMe = m.sender_id === _supaUser.id;
-      const time = new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-      return `<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
-        <div class="chat-bubble ${isMe?'me':'them'}">${m.content}</div>
-        <div class="chat-bubble-time">${time}</div>
-      </div>`;
-    }).join('');
-    el.scrollTop = el.scrollHeight;
-    // Marquer comme lu
-    if (msgs?.length) {
-      supa.from('messages').update({ read: true })
-        .eq('receiver_id', _supaUser.id).eq('sender_id', _currentChatFriendId).eq('read', false)
-        .then(() => {});
-    }
-  } catch(e) {
-    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--sub);font-size:14px;line-height:1.6">
-      ❌ La table <b>messages</b> n'existe pas encore.<br><br>
-      <button onclick="showChallengesSQL()" style="padding:10px 20px;background:rgba(167,139,250,0.15);border:1px solid #a78bfa;border-radius:12px;color:#a78bfa;font-weight:700;cursor:pointer;font-size:14px">
-        📋 Copier le SQL Supabase
+
+  const { data: msgs, error } = await supa.from('messages').select('*')
+    .or(`and(sender_id.eq.${_supaUser.id},receiver_id.eq.${_currentChatFriendId}),and(sender_id.eq.${_currentChatFriendId},receiver_id.eq.${_supaUser.id})`)
+    .order('created_at', { ascending: true }).limit(100);
+
+  if (error) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--sub);font-size:14px;line-height:1.8">
+      ❌ Table <b>messages</b> introuvable dans Supabase.<br><br>
+      <button onclick="showChallengesSQL()" style="padding:10px 20px;background:rgba(167,139,250,0.15);border:1.5px solid #a78bfa;border-radius:12px;color:#a78bfa;font-weight:700;cursor:pointer;font-size:14px">
+        📋 Copier le SQL à coller dans Supabase
       </button><br><br>
-      <span style="font-size:12px">Colle-le dans Supabase → SQL Editor</span>
+      <span style="font-size:11px;opacity:0.7">Supabase → SQL Editor → coller → Exécuter</span>
     </div>`;
+    return;
   }
+
+  if (!msgs || msgs.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--sub);font-size:14px">Aucun message pour l'instant.<br>Dis bonjour ! 👋</div>`;
+    return;
+  }
+
+  el.innerHTML = msgs.map(m => {
+    const isMe = m.sender_id === _supaUser.id;
+    const time = new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'}">
+      <div class="chat-bubble ${isMe?'me':'them'}">${m.content}</div>
+      <div class="chat-bubble-time" style="align-self:${isMe?'flex-end':'flex-start'};padding:0 4px">${time}</div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+
+  // Marquer comme lu
+  supa.from('messages').update({ read: true })
+    .eq('receiver_id', _supaUser.id).eq('sender_id', _currentChatFriendId).eq('read', false)
+    .then(() => {});
 }
 async function sendMessage() {
   const input = document.getElementById('chat-input');
