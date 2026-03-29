@@ -5236,6 +5236,15 @@ function deletePhoto() {
   if (document.getElementById('screen-calendar').classList.contains('active')) renderCalendar();
 }
 
+function deleteCalPhoto(dateStr) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  _photoDate = dateStr;
+  _deletePhotoFromStore(dateStr);
+  showToast('Photo supprimée 🗑️');
+  renderCalendar();
+  showDayDetail(dateStr, false);
+}
+
 // ─────────────────────────────────────────
 //  HAPTIC
 // ─────────────────────────────────────────
@@ -6084,7 +6093,7 @@ function renderCalendar() {
   else document.getElementById('cal-detail').innerHTML = '';
 }
 
-function showDayDetail(dateStr, updateSelected) {
+async function showDayDetail(dateStr, updateSelected) {
   if (updateSelected !== false) {
     calSelectedDate = dateStr;
     // Update selected class
@@ -6153,11 +6162,19 @@ function showDayDetail(dateStr, updateSelected) {
       + '</div></div>';
   }
 
-  // Photo du jour
-  const photo = _getPhoto(dateStr);
+  // Photo du jour — local d'abord, puis Supabase si absent
+  let photo = _getPhoto(dateStr);
+  if (!photo && supa && _supaUser) {
+    try {
+      const { data } = await supa.storage.from('workout-photos')
+        .createSignedUrl(`${_supaUser.id}/${dateStr}.jpg`, 3600);
+      if (data?.signedUrl) photo = data.signedUrl;
+    } catch(_) {}
+  }
   const photoHtml = photo
-    ? '<div class="cal-photo-wrap" onclick="openPhotoCapture(\'' + dateStr + '\')" style="cursor:pointer">'
-      + '<img src="' + photo + '" alt="Photo séance">'
+    ? '<div class="cal-photo-wrap" style="position:relative">'
+      + '<img src="' + photo + '" alt="Photo séance" style="cursor:pointer" onclick="openPhotoCapture(\'' + dateStr + '\')">'
+      + '<button onclick="event.stopPropagation();deleteCalPhoto(\'' + dateStr + '\')" style="position:absolute;top:8px;right:8px;background:rgba(239,68,68,0.88);border:none;border-radius:10px;color:#fff;padding:6px 12px;font-size:14px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px)">🗑️</button>'
       + '<p class="cal-photo-label">📸 Appuie pour agrandir</p>'
       + '</div>'
     : '';
